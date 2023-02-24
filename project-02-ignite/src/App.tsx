@@ -1,7 +1,7 @@
 
 import { Button } from './components/Button'
 import { ThemeProvider } from 'styled-components'
-import { defaultTheme } from './assets/styles/themes/Default'
+import { defaultTheme } from './assets/styles/themes/default'
 
 import './reset.css'
 import './global.css'
