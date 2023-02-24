@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from './assets/styles/themes/default'
 
 import './reset.css'
-import './global.css'
+import { GlobalStyle } from './assets/styles/global'
 
 export function App() {
   return (
@@ -14,6 +14,7 @@ export function App() {
       <Button variant='success'/>
       <Button variant='warning'/>
       <Button />
+      <GlobalStyle/>
     </ThemeProvider>
   )
 }
