@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { ButtonVariants } from "./Button";
+import styled from 'styled-components'
+import { ButtonVariants } from './Button'
 
 interface ButtonContainerProps {
   variant: ButtonVariants
