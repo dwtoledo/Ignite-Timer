@@ -10,10 +10,11 @@ export function App() {
     <ThemeProvider theme={defaultTheme}>
       <GlobalStyle/>
 
-      <Button variant='error'/>
-      <Button variant='info'/>
-      <Button variant='success'/>
-      <Button variant='warning'/>
+      <Button variant='red'/>
+      <Button variant='red-dark'/>
+      <Button variant='green'/>
+      <Button variant='green-dark'/>
+      <Button variant='green-light'/>
       <Button />
       
     </ThemeProvider>
