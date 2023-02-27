@@ -142,9 +142,10 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    background-color: ${(props) => props.theme['gray-200']};
+    background-color: ${(props) => props.theme['gray-100']};
     color: ${(props) => props.theme['gray-700']};
     -webkit-font-smoothing: antialiased;
+    padding: 1rem;
   }
 
   body, input, textarea, button {
