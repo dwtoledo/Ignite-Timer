@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { DefaultLayout } from './layouts/DeafultLayout'
+import { DefaultLayout } from './layouts/default_layout'
 import { History } from './pages/History'
 import { Home } from './pages/Home'
 
