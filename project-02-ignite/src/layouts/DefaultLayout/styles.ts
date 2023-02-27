@@ -8,4 +8,6 @@ export const DefaultLayoutContainer = styled.div`
   height: calc(100vh - 10rem);
   margin: 5rem auto;
   max-width: 70rem;
+  padding: 2.5rem;
+  gap: 4.625rem;
 `
