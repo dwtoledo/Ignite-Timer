@@ -52,6 +52,16 @@ export const PomodoroHistoryTable = styled.div`
         padding-right: 1.5rem;
       }
     }
+
+    tbody tr:last-child {
+      td:first-child {
+        border-bottom-left-radius: 8px;
+      }
+
+      td:last-child {
+        border-bottom-right-radius: 8px;
+      }
+    }
   }
 `
 
