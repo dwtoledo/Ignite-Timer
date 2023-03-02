@@ -79,7 +79,6 @@ export const PomodoroCountdownDivider = styled.div`
   font-weight: 700;
   line-height: 1;
 `
-
 export const PomodoroCountdownContainer = styled.div`
   align-items: center;
   display: flex;
@@ -109,4 +108,12 @@ export const PomodoroCountdownContainer = styled.div`
       font-size: 2.5rem;
     }
   }
+`
+
+export const FormErrorContainer = styled.div`
+  background-color: ${(props) => props.theme['red-dark']};
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  width: 100%;
 `

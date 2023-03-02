@@ -1,6 +1,10 @@
 import { Play } from 'phosphor-react'
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as zod from 'zod'
+
 import {
+  FormErrorContainer,
   MinutesAmountInput,
   PomodoroCountdownContainer,
   PomodoroCountdownDivider,
@@ -11,35 +15,43 @@ import {
 } from './styles'
 
 export function Home() {
-  const [taskName, setTaskName] = useState('')
-  const [minutesAmount, setMinutesAmount] = useState(0)
+  const pomodoroFormValidatorSchema = zod
+    .object({
+      taskName: zod.string().min(1, 'Please inform a task name.'),
+      minutesAmount: zod
+        .number({
+          invalid_type_error: 'Please inform a cycle duration.',
+        })
+        .positive('Negative cycle durations are not allowed.')
+        .min(5, '5 is the min cycle duration.')
+        .max(60, '60 is the max cycle duration.'),
+    })
+    .required()
 
-  function handleNewTaskName(event: ChangeEvent<HTMLInputElement>) {
-    setTaskName(event.target.value)
-  }
+  type PomodoroFormData = zod.infer<typeof pomodoroFormValidatorSchema>
 
-  function handleNewMinutesAmount(event: ChangeEvent<HTMLInputElement>) {
-    setMinutesAmount(parseInt(event.target.value))
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PomodoroFormData>({
+    resolver: zodResolver(pomodoroFormValidatorSchema),
+  })
 
-  function handlePomodoroFormSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    console.log(
-      `Submit Pomodoro Form using Controlled Component > Task name is '${taskName}' and minutes amount is '${minutesAmount}'`,
-    )
+  function handlePomodoroFormSubmit(data: PomodoroFormData) {
+    console.log('Submit Pomodoro Form:', data)
   }
 
   return (
-    <PomodoroFormContainer onSubmit={handlePomodoroFormSubmit}>
+    <PomodoroFormContainer onSubmit={handleSubmit(handlePomodoroFormSubmit)}>
       <PomodoroInfoContainer>
-        <label htmlFor="task-name">I will work on</label>
+        <label htmlFor="taskName">I will work on</label>
         <TaskNameInput
           type="text"
-          id="task-name"
+          id="taskName"
           list="task-suggestions"
           placeholder="task name"
-          onChange={handleNewTaskName}
-          value={taskName}
+          {...register('taskName')}
         />
 
         <datalist id="task-suggestions">
@@ -48,16 +60,19 @@ export function Home() {
           <option value="Task 3" />
         </datalist>
 
-        <label htmlFor="minutes-amount">for</label>
+        <label htmlFor="minutesAmount">for</label>
         <MinutesAmountInput
           type="number"
-          id="minutes-amount"
-          placeholder="00"
-          onChange={handleNewMinutesAmount}
-          value={minutesAmount}
+          id="minutesAmount"
+          step={5}
           min={5}
           max={60}
-          step={5}
+          {...register('minutesAmount', {
+            valueAsNumber: true,
+            max: 60,
+            min: 5,
+            value: 5,
+          })}
         />
         <span>minutes.</span>
       </PomodoroInfoContainer>
@@ -74,6 +89,20 @@ export function Home() {
         <Play size={24} />
         Start
       </StartButtonContainer>
+
+      {Object.keys(errors).length ? (
+        <FormErrorContainer>
+          {Object.keys(errors).map((fieldError) => {
+            return (
+              <p key={fieldError}>
+                {errors[fieldError as keyof PomodoroFormData]?.message}
+              </p>
+            )
+          })}
+        </FormErrorContainer>
+      ) : (
+        <div></div>
+      )}
     </PomodoroFormContainer>
   )
 }
