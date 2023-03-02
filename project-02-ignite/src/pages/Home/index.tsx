@@ -30,16 +30,24 @@ export function Home() {
 
   type PomodoroFormData = zod.infer<typeof pomodoroFormValidatorSchema>
 
+  const pomodoroFormDefaultValues = {
+    minutesAmount: 5,
+    taskName: '',
+  }
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<PomodoroFormData>({
     resolver: zodResolver(pomodoroFormValidatorSchema),
+    defaultValues: pomodoroFormDefaultValues,
   })
 
   function handlePomodoroFormSubmit(data: PomodoroFormData) {
     console.log('Submit Pomodoro Form:', data)
+    reset()
   }
 
   return (
@@ -62,6 +70,7 @@ export function Home() {
 
         <label htmlFor="minutesAmount">for</label>
         <MinutesAmountInput
+          placeholder="00"
           type="number"
           id="minutesAmount"
           step={5}
@@ -69,9 +78,6 @@ export function Home() {
           max={60}
           {...register('minutesAmount', {
             valueAsNumber: true,
-            max: 60,
-            min: 5,
-            value: 5,
           })}
         />
         <span>minutes.</span>
