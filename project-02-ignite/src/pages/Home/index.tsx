@@ -85,7 +85,6 @@ export function Home() {
     setActivePomodoroCycleSecondsPassed(0)
     reset()
   }
-  console.log(pomodoroCycles)
 
   const activePomodoroCycle = pomodoroCycles.find((pomodoroCycle) => {
     return pomodoroCycle.id === activePomodoroCycleId
