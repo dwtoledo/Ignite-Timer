@@ -1,6 +1,9 @@
-import { Play } from 'phosphor-react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { differenceInSeconds } from 'date-fns'
+import { Play } from 'phosphor-react'
+import { v4 as uuidv4 } from 'uuid'
 import * as zod from 'zod'
 
 import {
@@ -13,6 +16,13 @@ import {
   StartButtonContainer,
   TaskNameInput,
 } from './styles'
+
+interface PomodoroCycle {
+  id: string
+  minutesAmount: number
+  taskName: string
+  startDate: Date
+}
 
 export function Home() {
   const pomodoroFormValidatorSchema = zod
@@ -45,10 +55,63 @@ export function Home() {
     defaultValues: pomodoroFormDefaultValues,
   })
 
+  const [pomodoroCycles, setPomodoroCycles] = useState<Array<PomodoroCycle>>([])
+  const [activePomodoroCycleId, setActivePomodoroCycleId] = useState<
+    string | null
+  >(null)
+  const [
+    activePomodoroCycleSecondsPassed,
+    setActivePomodoroCycleSecondsPassed,
+  ] = useState(0)
+
   function handlePomodoroFormSubmit(data: PomodoroFormData) {
-    console.log('Submit Pomodoro Form:', data)
+    const newPomodoroCycle: PomodoroCycle = {
+      id: uuidv4(),
+      minutesAmount: data.minutesAmount,
+      taskName: data.taskName,
+      startDate: new Date(),
+    }
+    setPomodoroCycles((state) => [...state, newPomodoroCycle])
+    setActivePomodoroCycleId(newPomodoroCycle.id)
+    setActivePomodoroCycleSecondsPassed(0)
     reset()
   }
+
+  const activePomodoroCycle = pomodoroCycles.find((pomodoroCycle) => {
+    return pomodoroCycle.id === activePomodoroCycleId
+  })
+
+  useEffect(() => {
+    let interval: number
+
+    if (activePomodoroCycle) {
+      interval = setInterval(() => {
+        setActivePomodoroCycleSecondsPassed(
+          differenceInSeconds(new Date(), activePomodoroCycle.startDate),
+        )
+      }, 1000)
+    }
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [activePomodoroCycle])
+
+  const activePomodoroCycleSecondsAmount = activePomodoroCycle
+    ? activePomodoroCycle.minutesAmount * 60
+    : 0
+
+  const activePomodoroCycleSecondsAmountRemaining = activePomodoroCycle
+    ? activePomodoroCycleSecondsAmount - activePomodoroCycleSecondsPassed
+    : 0
+
+  const activePomodoroCycleMinutesRemaning = activePomodoroCycle
+    ? Math.floor(activePomodoroCycleSecondsAmountRemaining / 60)
+    : 0
+
+  const activePomodoroCycleSecondsRemaning = activePomodoroCycle
+    ? activePomodoroCycleSecondsAmountRemaining % 60
+    : 0
 
   return (
     <PomodoroFormContainer onSubmit={handleSubmit(handlePomodoroFormSubmit)}>
@@ -84,11 +147,19 @@ export function Home() {
       </PomodoroInfoContainer>
 
       <PomodoroCountdownContainer>
-        <span>0</span>
-        <span>0</span>
+        <span>
+          {String(activePomodoroCycleMinutesRemaning).padStart(2, '0')[0]}
+        </span>
+        <span>
+          {String(activePomodoroCycleMinutesRemaning).padStart(2, '0')[1]}
+        </span>
         <PomodoroCountdownDivider>:</PomodoroCountdownDivider>
-        <span>0</span>
-        <span>0</span>
+        <span>
+          {String(activePomodoroCycleSecondsRemaning).padStart(2, '0')[0]}
+        </span>
+        <span>
+          {String(activePomodoroCycleSecondsRemaning).padStart(2, '0')[1]}
+        </span>
       </PomodoroCountdownContainer>
 
       <StartButtonContainer type="submit">
