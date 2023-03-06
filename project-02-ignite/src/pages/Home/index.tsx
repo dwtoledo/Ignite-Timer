@@ -106,12 +106,16 @@ export function Home() {
     : 0
 
   const activePomodoroCycleMinutesRemaning = activePomodoroCycle
-    ? Math.floor(activePomodoroCycleSecondsAmountRemaining / 60)
-    : 0
+    ? String(
+        Math.floor(activePomodoroCycleSecondsAmountRemaining / 60),
+      ).padStart(2, '0')
+    : '00'
 
   const activePomodoroCycleSecondsRemaning = activePomodoroCycle
-    ? activePomodoroCycleSecondsAmountRemaining % 60
-    : 0
+    ? String(activePomodoroCycleSecondsAmountRemaining % 60).padStart(2, '0')
+    : '00'
+
+  document.title = `${activePomodoroCycleMinutesRemaning}:${activePomodoroCycleSecondsRemaning} - Ignite Project 02 - @dwtoledo`
 
   return (
     <PomodoroFormContainer onSubmit={handleSubmit(handlePomodoroFormSubmit)}>
@@ -147,19 +151,11 @@ export function Home() {
       </PomodoroInfoContainer>
 
       <PomodoroCountdownContainer>
-        <span>
-          {String(activePomodoroCycleMinutesRemaning).padStart(2, '0')[0]}
-        </span>
-        <span>
-          {String(activePomodoroCycleMinutesRemaning).padStart(2, '0')[1]}
-        </span>
+        <span>{activePomodoroCycleMinutesRemaning[0]}</span>
+        <span>{activePomodoroCycleMinutesRemaning[1]}</span>
         <PomodoroCountdownDivider>:</PomodoroCountdownDivider>
-        <span>
-          {String(activePomodoroCycleSecondsRemaning).padStart(2, '0')[0]}
-        </span>
-        <span>
-          {String(activePomodoroCycleSecondsRemaning).padStart(2, '0')[1]}
-        </span>
+        <span>{activePomodoroCycleSecondsRemaning[0]}</span>
+        <span>{activePomodoroCycleSecondsRemaning[1]}</span>
       </PomodoroCountdownContainer>
 
       <StartButtonContainer type="submit">
