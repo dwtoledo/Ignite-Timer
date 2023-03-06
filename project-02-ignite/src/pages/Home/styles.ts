@@ -45,10 +45,9 @@ export const MinutesAmountInput = styled(DefaultInput)`
   width: 74px;
 `
 
-export const StartButtonContainer = styled.button`
+const BaseButtonContainer = styled.button`
   cursor: pointer;
   align-items: center;
-  background-color: ${(props) => props.theme.green};
   border: none;
   border-radius: 8px;
   box-shadow: none;
@@ -61,14 +60,27 @@ export const StartButtonContainer = styled.button`
   padding: 1.25rem;
   width: 100%;
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+`
+
+export const StartButtonContainer = styled(BaseButtonContainer)`
+  background-color: ${(props) => props.theme.green};
+
   &:not(:disabled):hover,
   &:not(:disabled):active {
     background-color: ${(props) => props.theme['green-dark']};
   }
+`
 
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
+export const StopButtonContainer = styled(BaseButtonContainer)`
+  background-color: ${(props) => props.theme.red};
+
+  &:not(:disabled):hover,
+  &:not(:disabled):active {
+    background-color: ${(props) => props.theme['red-dark']};
   }
 `
 

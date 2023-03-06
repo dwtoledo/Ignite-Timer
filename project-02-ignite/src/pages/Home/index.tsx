@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { differenceInSeconds } from 'date-fns'
-import { Play } from 'phosphor-react'
+import { HandPalm, Play } from 'phosphor-react'
 import { v4 as uuidv4 } from 'uuid'
 import * as zod from 'zod'
 
@@ -14,6 +14,7 @@ import {
   PomodoroFormContainer,
   PomodoroInfoContainer,
   StartButtonContainer,
+  StopButtonContainer,
   TaskNameInput,
 } from './styles'
 
@@ -22,9 +23,17 @@ interface PomodoroCycle {
   minutesAmount: number
   taskName: string
   startDate: Date
+  interruptedDate?: Date
+  concludedDate?: Date
 }
 
 export function Home() {
+  function updatePageTitleWithPrefix(prefix: string = '') {
+    document.title = `${
+      prefix.length ? prefix + ' - ' : prefix
+    } Ignite Project 02 - @dwtoledo`
+  }
+
   const pomodoroFormValidatorSchema = zod
     .object({
       taskName: zod.string().min(1, 'Please inform a task name.'),
@@ -33,7 +42,7 @@ export function Home() {
           invalid_type_error: 'Please inform a cycle duration.',
         })
         .positive('Negative cycle durations are not allowed.')
-        .min(5, '5 is the min cycle duration.')
+        .min(1, '1 is the min cycle duration.')
         .max(60, '60 is the max cycle duration.'),
     })
     .required()
@@ -41,7 +50,7 @@ export function Home() {
   type PomodoroFormData = zod.infer<typeof pomodoroFormValidatorSchema>
 
   const pomodoroFormDefaultValues = {
-    minutesAmount: 5,
+    minutesAmount: 1,
     taskName: '',
   }
 
@@ -76,26 +85,11 @@ export function Home() {
     setActivePomodoroCycleSecondsPassed(0)
     reset()
   }
+  console.log(pomodoroCycles)
 
   const activePomodoroCycle = pomodoroCycles.find((pomodoroCycle) => {
     return pomodoroCycle.id === activePomodoroCycleId
   })
-
-  useEffect(() => {
-    let interval: number
-
-    if (activePomodoroCycle) {
-      interval = setInterval(() => {
-        setActivePomodoroCycleSecondsPassed(
-          differenceInSeconds(new Date(), activePomodoroCycle.startDate),
-        )
-      }, 1000)
-    }
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [activePomodoroCycle])
 
   const activePomodoroCycleSecondsAmount = activePomodoroCycle
     ? activePomodoroCycle.minutesAmount * 60
@@ -115,13 +109,67 @@ export function Home() {
     ? String(activePomodoroCycleSecondsAmountRemaining % 60).padStart(2, '0')
     : '00'
 
-  document.title = `${activePomodoroCycleMinutesRemaning}:${activePomodoroCycleSecondsRemaning} - Ignite Project 02 - @dwtoledo`
+  if (activePomodoroCycle) {
+    updatePageTitleWithPrefix(
+      `${activePomodoroCycleMinutesRemaning}:${activePomodoroCycleSecondsRemaning} | ${activePomodoroCycle.taskName}`,
+    )
+  }
+
+  function handleInterruptPomodoroCycle() {
+    setPomodoroCycles((state) =>
+      state.map((pomodoroCycle) => {
+        if (pomodoroCycle.id === activePomodoroCycle?.id) {
+          return { ...pomodoroCycle, interruptedDate: new Date() }
+        } else {
+          return pomodoroCycle
+        }
+      }),
+    )
+    setActivePomodoroCycleId(null)
+    updatePageTitleWithPrefix()
+  }
+
+  useEffect(() => {
+    let interval: number
+
+    if (activePomodoroCycle) {
+      interval = setInterval(() => {
+        const differenceInSecondsFromStartDate = differenceInSeconds(
+          new Date(),
+          activePomodoroCycle.startDate,
+        )
+        const isPomodoroCycleConcluded =
+          differenceInSecondsFromStartDate > activePomodoroCycleSecondsAmount
+
+        if (isPomodoroCycleConcluded) {
+          setPomodoroCycles((state) =>
+            state.map((pomodoroCycle) => {
+              if (pomodoroCycle.id === activePomodoroCycle?.id) {
+                return { ...pomodoroCycle, concludedDate: new Date() }
+              } else {
+                return pomodoroCycle
+              }
+            }),
+          )
+          setActivePomodoroCycleId(null)
+          updatePageTitleWithPrefix()
+        } else {
+          setActivePomodoroCycleSecondsPassed(differenceInSecondsFromStartDate)
+        }
+      }, 1000)
+    }
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [activePomodoroCycle, activePomodoroCycleSecondsAmount])
 
   return (
     <PomodoroFormContainer onSubmit={handleSubmit(handlePomodoroFormSubmit)}>
       <PomodoroInfoContainer>
         <label htmlFor="taskName">I will work on</label>
         <TaskNameInput
+          disabled={!!activePomodoroCycle}
           type="text"
           id="taskName"
           list="task-suggestions"
@@ -137,11 +185,12 @@ export function Home() {
 
         <label htmlFor="minutesAmount">for</label>
         <MinutesAmountInput
+          disabled={!!activePomodoroCycle}
           placeholder="00"
           type="number"
           id="minutesAmount"
-          step={5}
-          min={5}
+          step={1}
+          min={1}
           max={60}
           {...register('minutesAmount', {
             valueAsNumber: true,
@@ -158,10 +207,20 @@ export function Home() {
         <span>{activePomodoroCycleSecondsRemaning[1]}</span>
       </PomodoroCountdownContainer>
 
-      <StartButtonContainer type="submit">
-        <Play size={24} />
-        Start
-      </StartButtonContainer>
+      {activePomodoroCycle ? (
+        <StopButtonContainer
+          onClick={handleInterruptPomodoroCycle}
+          type="button"
+        >
+          <HandPalm size={24} />
+          Stop {activePomodoroCycle.taskName}
+        </StopButtonContainer>
+      ) : (
+        <StartButtonContainer type="submit">
+          <Play size={24} />
+          Start
+        </StartButtonContainer>
+      )}
 
       {Object.keys(errors).length ? (
         <FormErrorContainer>
