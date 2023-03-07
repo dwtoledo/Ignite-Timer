@@ -48,6 +48,7 @@ export function NewCycleForm() {
   return (
     <NewCycleFormContainer>
       <label htmlFor="cycleName">I will work on</label>
+
       <CycleNameInput
         disabled={isCycleActive}
         type="text"
@@ -64,6 +65,7 @@ export function NewCycleForm() {
       </datalist>
 
       <label htmlFor="minutesAmount">for</label>
+
       <MinutesAmountInput
         disabled={isCycleActive}
         placeholder="00"

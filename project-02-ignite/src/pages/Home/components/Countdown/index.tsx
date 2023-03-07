@@ -1,9 +1,12 @@
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
+import { differenceInSeconds } from 'date-fns'
+
 import { ActivePomodoroCycleContext } from '../..'
 import { CountdownContainer, CountdownDivider } from './styles'
 
 export function Countdown() {
-  const { activeCycle, secondsPassed } = useContext(ActivePomodoroCycleContext)
+  const { activeCycle, secondsPassed, onComplete, onSecondsPassedChange } =
+    useContext(ActivePomodoroCycleContext)
 
   const cycleSecondsAmount = activeCycle ? activeCycle.minutesAmount * 60 : 0
   const cycleSecondsRemaining = activeCycle
@@ -19,6 +22,29 @@ export function Countdown() {
     ${minutesFormatted}:${secondsFormatted} | ${activeCycle.taskName} 
     - Ignite Timer by @dwtoledo`
   }
+
+  useEffect(() => {
+    let interval: number
+
+    if (activeCycle) {
+      interval = setInterval(() => {
+        const cycleSecondsPassed = differenceInSeconds(
+          new Date(),
+          activeCycle.startDate,
+        )
+
+        if (cycleSecondsPassed > cycleSecondsAmount) {
+          onComplete()
+        } else {
+          onSecondsPassedChange(cycleSecondsPassed)
+        }
+      }, 1000)
+    }
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [activeCycle, cycleSecondsAmount, onComplete, onSecondsPassedChange])
 
   return (
     <CountdownContainer>

@@ -1,6 +1,5 @@
-import { useEffect, useState, createContext } from 'react'
+import { useState, createContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { differenceInSeconds } from 'date-fns'
 import { HandPalm, Play } from 'phosphor-react'
 import { v4 as uuidv4 } from 'uuid'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -34,12 +33,13 @@ interface PomodoroCycle {
 interface ActivePomodoroCycleContextModel {
   activeCycle: PomodoroCycle | undefined
   secondsPassed: number
+  onComplete: () => void
+  onSecondsPassedChange: (newValue: number) => void
 }
 
-export const ActivePomodoroCycleContext = createContext({
-  activeCycle: undefined,
-  secondsPassed: 0,
-} as ActivePomodoroCycleContextModel)
+export const ActivePomodoroCycleContext = createContext(
+  {} as ActivePomodoroCycleContextModel,
+)
 
 export function Home() {
   const NewCycleFormContext = useForm<NewCycleFormData>({
@@ -55,6 +55,10 @@ export function Home() {
     activePomodoroCycleSecondsPassed,
     setActivePomodoroCycleSecondsPassed,
   ] = useState(0)
+
+  function updateActivePomodoroCycleSecondsPassed(newValue: number) {
+    setActivePomodoroCycleSecondsPassed(newValue)
+  }
 
   const activePomodoroCycle = pomodoroCycles.find((pomodoroCycle) => {
     return pomodoroCycle.id === activePomodoroCycleId
@@ -92,43 +96,20 @@ export function Home() {
     resetPageTitle()
   }
 
-  useEffect(() => {
-    let interval: number
-
-    if (activePomodoroCycle) {
-      interval = setInterval(() => {
-        const differenceInSecondsFromStartDate = differenceInSeconds(
-          new Date(),
-          activePomodoroCycle.startDate,
-        )
-
-        const isPomodoroCycleConcluded =
-          differenceInSecondsFromStartDate >
-          activePomodoroCycle.minutesAmount * 60
-
-        if (isPomodoroCycleConcluded) {
-          setPomodoroCycles((state) =>
-            state.map((pomodoroCycle) => {
-              if (pomodoroCycle.id === activePomodoroCycle?.id) {
-                return { ...pomodoroCycle, concludedDate: new Date() }
-              } else {
-                return pomodoroCycle
-              }
-            }),
-          )
-          setActivePomodoroCycleId(null)
-          setActivePomodoroCycleSecondsPassed(0)
-          resetPageTitle()
+  function completePomodoroCycle() {
+    setPomodoroCycles((state) =>
+      state.map((pomodoroCycle) => {
+        if (pomodoroCycle.id === activePomodoroCycle?.id) {
+          return { ...pomodoroCycle, concludedDate: new Date() }
         } else {
-          setActivePomodoroCycleSecondsPassed(differenceInSecondsFromStartDate)
+          return pomodoroCycle
         }
-      }, 1000)
-    }
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [activePomodoroCycle])
+      }),
+    )
+    setActivePomodoroCycleId(null)
+    setActivePomodoroCycleSecondsPassed(0)
+    resetPageTitle()
+  }
 
   return (
     <PomodoroFormContainer
@@ -138,6 +119,8 @@ export function Home() {
         value={{
           activeCycle: activePomodoroCycle,
           secondsPassed: activePomodoroCycleSecondsPassed,
+          onComplete: completePomodoroCycle,
+          onSecondsPassedChange: updateActivePomodoroCycleSecondsPassed,
         }}
       >
         <FormProvider {...NewCycleFormContext}>
