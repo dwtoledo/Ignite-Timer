@@ -27,6 +27,8 @@ interface PomodoroCycle {
   concludedDate?: Date
 }
 
+const MIN_MINUTES_AMOUNT_INPUT = 5;
+
 export function Home() {
   function updatePageTitleWithPrefix(prefix: string = '') {
     document.title = `${
@@ -42,7 +44,7 @@ export function Home() {
           invalid_type_error: 'Please inform a cycle duration.',
         })
         .positive('Negative cycle durations are not allowed.')
-        .min(1, '1 is the min cycle duration.')
+        .min(MIN_MINUTES_AMOUNT_INPUT, `${MIN_MINUTES_AMOUNT_INPUT.toString()} is the min cycle duration.`)
         .max(60, '60 is the max cycle duration.'),
     })
     .required()
@@ -50,7 +52,7 @@ export function Home() {
   type PomodoroFormData = zod.infer<typeof pomodoroFormValidatorSchema>
 
   const pomodoroFormDefaultValues = {
-    minutesAmount: 1,
+    minutesAmount: MIN_MINUTES_AMOUNT_INPUT,
     taskName: '',
   }
 
@@ -188,8 +190,8 @@ export function Home() {
           placeholder="00"
           type="number"
           id="minutesAmount"
-          step={1}
-          min={1}
+          step={MIN_MINUTES_AMOUNT_INPUT}
+          min={MIN_MINUTES_AMOUNT_INPUT}
           max={60}
           {...register('minutesAmount', {
             valueAsNumber: true,
