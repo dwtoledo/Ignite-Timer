@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, createContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { differenceInSeconds } from 'date-fns'
 import { HandPalm, Play } from 'phosphor-react'
+import { Countdown } from './components/Countdown'
 import { v4 as uuidv4 } from 'uuid'
 import * as zod from 'zod'
 
 import {
   FormErrorContainer,
   MinutesAmountInput,
-  PomodoroCountdownContainer,
-  PomodoroCountdownDivider,
   PomodoroFormContainer,
   PomodoroInfoContainer,
   StartButtonContainer,
@@ -27,15 +26,19 @@ interface PomodoroCycle {
   concludedDate?: Date
 }
 
-const MIN_MINUTES_AMOUNT_INPUT = 5;
+interface ActivePomodoroCycleContextModel {
+  cycle: PomodoroCycle | undefined
+  secondsPassed: number
+}
+
+export const ActivePomodoroCycleContext = createContext({
+  cycle: undefined,
+  secondsPassed: 0,
+} as ActivePomodoroCycleContextModel)
+
+const MIN_MINUTES_AMOUNT_INPUT = 5
 
 export function Home() {
-  function updatePageTitleWithPrefix(prefix: string = '') {
-    document.title = `${
-      prefix.length ? prefix + ' - ' : prefix
-    } Ignite Project 02 - @dwtoledo`
-  }
-
   const pomodoroFormValidatorSchema = zod
     .object({
       taskName: zod.string().min(1, 'Please inform a task name.'),
@@ -44,7 +47,10 @@ export function Home() {
           invalid_type_error: 'Please inform a cycle duration.',
         })
         .positive('Negative cycle durations are not allowed.')
-        .min(MIN_MINUTES_AMOUNT_INPUT, `${MIN_MINUTES_AMOUNT_INPUT.toString()} is the min cycle duration.`)
+        .min(
+          MIN_MINUTES_AMOUNT_INPUT,
+          `${MIN_MINUTES_AMOUNT_INPUT.toString()} is the min cycle duration.`,
+        )
         .max(60, '60 is the max cycle duration.'),
     })
     .required()
@@ -75,6 +81,10 @@ export function Home() {
     setActivePomodoroCycleSecondsPassed,
   ] = useState(0)
 
+  function resetPageTitle() {
+    document.title = 'Ignite Project 02 - @dwtoledo'
+  }
+
   function handlePomodoroFormSubmit(data: PomodoroFormData) {
     const newPomodoroCycle: PomodoroCycle = {
       id: uuidv4(),
@@ -92,30 +102,6 @@ export function Home() {
     return pomodoroCycle.id === activePomodoroCycleId
   })
 
-  const activePomodoroCycleSecondsAmount = activePomodoroCycle
-    ? activePomodoroCycle.minutesAmount * 60
-    : 0
-
-  const activePomodoroCycleSecondsAmountRemaining = activePomodoroCycle
-    ? activePomodoroCycleSecondsAmount - activePomodoroCycleSecondsPassed
-    : 0
-
-  const activePomodoroCycleMinutesRemaning = activePomodoroCycle
-    ? String(
-        Math.floor(activePomodoroCycleSecondsAmountRemaining / 60),
-      ).padStart(2, '0')
-    : '00'
-
-  const activePomodoroCycleSecondsRemaning = activePomodoroCycle
-    ? String(activePomodoroCycleSecondsAmountRemaining % 60).padStart(2, '0')
-    : '00'
-
-  if (activePomodoroCycle) {
-    updatePageTitleWithPrefix(
-      `${activePomodoroCycleMinutesRemaning}:${activePomodoroCycleSecondsRemaning} | ${activePomodoroCycle.taskName}`,
-    )
-  }
-
   function handleInterruptPomodoroCycle() {
     setPomodoroCycles((state) =>
       state.map((pomodoroCycle) => {
@@ -127,7 +113,7 @@ export function Home() {
       }),
     )
     setActivePomodoroCycleId(null)
-    updatePageTitleWithPrefix()
+    resetPageTitle()
   }
 
   useEffect(() => {
@@ -139,8 +125,10 @@ export function Home() {
           new Date(),
           activePomodoroCycle.startDate,
         )
+
         const isPomodoroCycleConcluded =
-          differenceInSecondsFromStartDate > activePomodoroCycleSecondsAmount
+          differenceInSecondsFromStartDate >
+          activePomodoroCycle.minutesAmount * 60
 
         if (isPomodoroCycleConcluded) {
           setPomodoroCycles((state) =>
@@ -153,7 +141,7 @@ export function Home() {
             }),
           )
           setActivePomodoroCycleId(null)
-          updatePageTitleWithPrefix()
+          resetPageTitle()
         } else {
           setActivePomodoroCycleSecondsPassed(differenceInSecondsFromStartDate)
         }
@@ -163,7 +151,7 @@ export function Home() {
     return () => {
       clearInterval(interval)
     }
-  }, [activePomodoroCycle, activePomodoroCycleSecondsAmount])
+  }, [activePomodoroCycle])
 
   return (
     <PomodoroFormContainer onSubmit={handleSubmit(handlePomodoroFormSubmit)}>
@@ -200,13 +188,14 @@ export function Home() {
         <span>minutes.</span>
       </PomodoroInfoContainer>
 
-      <PomodoroCountdownContainer>
-        <span>{activePomodoroCycleMinutesRemaning[0]}</span>
-        <span>{activePomodoroCycleMinutesRemaning[1]}</span>
-        <PomodoroCountdownDivider>:</PomodoroCountdownDivider>
-        <span>{activePomodoroCycleSecondsRemaning[0]}</span>
-        <span>{activePomodoroCycleSecondsRemaning[1]}</span>
-      </PomodoroCountdownContainer>
+      <ActivePomodoroCycleContext.Provider
+        value={{
+          cycle: activePomodoroCycle,
+          secondsPassed: activePomodoroCycleSecondsPassed,
+        }}
+      >
+        <Countdown />
+      </ActivePomodoroCycleContext.Provider>
 
       {activePomodoroCycle ? (
         <StopButtonContainer
