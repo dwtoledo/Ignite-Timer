@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import { ActivePomodoroCycleContext } from '../..'
+
 import { CountdownContainer, CountdownDivider } from './styles'
 
 export function Countdown() {
