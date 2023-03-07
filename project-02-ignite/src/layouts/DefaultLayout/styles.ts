@@ -5,7 +5,7 @@ export const DefaultLayoutContainer = styled.div`
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 10rem);
+  min-height: calc(100vh - 10rem);
   margin: 5rem auto;
   max-width: 70rem;
   padding: 2.5rem;
