@@ -10,8 +10,8 @@ import {
   NewCycleFormContainer,
 } from './styles'
 
-const minutesAmountInputStep = 1
-const minMinutesAmountInputValue = 1
+const minutesAmountInputStep = 5
+const minMinutesAmountInputValue = 5
 const maxMinutesAmountInputValue = 60
 const cycleNamePreDefinedOptions = ['Task 1', 'Task 2', 'Task 3']
 

@@ -9,7 +9,7 @@ import {
 
 export function History() {
   const { cycleHistory } = useContext(ActivePomodoroCycleContext)
-  console.log(cycleHistory)
+
   return (
     <PomodoroHistoryContainer>
       <h1>My history</h1>
