@@ -57,7 +57,7 @@ export function Home() {
           type="button"
         >
           <HandPalm size={24} />
-          Stop {activeCycle.taskName}
+          Stop {activeCycle.name}
         </StopButtonContainer>
       ) : (
         <StartButtonContainer type="submit">

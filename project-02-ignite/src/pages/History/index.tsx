@@ -4,7 +4,7 @@ import { formatDistanceToNow } from 'date-fns'
 import {
   PomodoroHistoryContainer,
   PomodoroHistoryTable,
-  TaskStatus,
+  CycleStatus,
 } from './styles'
 
 export function History() {
@@ -17,43 +17,51 @@ export function History() {
         <table>
           <thead>
             <tr>
-              <th>Task</th>
+              <th>Cycle</th>
               <th>Duration</th>
               <th>Start</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {cycleHistory.map((cycle) => {
-              return (
-                <tr key={cycle.id}>
-                  <td>{cycle.taskName}</td>
-                  <td>{cycle.minutesAmount} minutes</td>
-                  <td>
-                    {formatDistanceToNow(cycle.startDate, {
-                      addSuffix: true,
-                    })}
-                  </td>
-                  <td>
-                    {cycle.concludedDate && (
-                      <TaskStatus statusColor={'completed'}>
-                        Completed
-                      </TaskStatus>
-                    )}
+            {!cycleHistory.length ? (
+              <tr>
+                <td colSpan={4}>No cycles created yet</td>
+              </tr>
+            ) : (
+              cycleHistory.map((cycle) => {
+                return (
+                  <tr key={cycle.id}>
+                    <td>{cycle.name}</td>
+                    <td>{cycle.minutesAmount} minutes</td>
+                    <td>
+                      {formatDistanceToNow(cycle.startDate, {
+                        addSuffix: true,
+                      })}
+                    </td>
+                    <td>
+                      {cycle.concludedDate && (
+                        <CycleStatus statusColor={'completed'}>
+                          Completed
+                        </CycleStatus>
+                      )}
 
-                    {cycle.interruptedDate && (
-                      <TaskStatus statusColor={'stopped'}>Stopped</TaskStatus>
-                    )}
+                      {cycle.interruptedDate && (
+                        <CycleStatus statusColor={'stopped'}>
+                          Stopped
+                        </CycleStatus>
+                      )}
 
-                    {!cycle.concludedDate && !cycle.interruptedDate && (
-                      <TaskStatus statusColor={'inProgress'}>
-                        In Progress
-                      </TaskStatus>
-                    )}
-                  </td>
-                </tr>
-              )
-            })}
+                      {!cycle.concludedDate && !cycle.interruptedDate && (
+                        <CycleStatus statusColor={'inProgress'}>
+                          In Progress
+                        </CycleStatus>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })
+            )}
           </tbody>
         </table>
       </PomodoroHistoryTable>

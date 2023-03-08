@@ -13,11 +13,11 @@ import {
 const minutesAmountInputStep = 5
 const minMinutesAmountInputValue = 5
 const maxMinutesAmountInputValue = 60
-const cycleNamePreDefinedOptions = ['Task 1', 'Task 2', 'Task 3']
+const cycleNamePreDefinedOptions = ['Cycle 1', 'Cycle 2', 'Cycle 3']
 
 export const NewCycleFormValidatorSchema = zod
   .object({
-    cycleName: zod.string().min(1, 'Please inform a task name.'),
+    cycleName: zod.string().min(1, 'Please inform a cycle name.'),
     minutesAmount: zod
       .number({
         invalid_type_error: 'Please inform a cycle duration.',

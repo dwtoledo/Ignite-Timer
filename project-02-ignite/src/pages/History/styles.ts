@@ -65,17 +65,17 @@ export const PomodoroHistoryTable = styled.div`
   }
 `
 
-const TASK_STATUS_COLORS = {
+const CYCLE_STATUS_COLORS = {
   completed: 'green',
   inProgress: 'yellow',
   stopped: 'red',
 } as const
 
-interface TaskStatusProps {
-  statusColor: keyof typeof TASK_STATUS_COLORS
+interface CycleStatusProps {
+  statusColor: keyof typeof CYCLE_STATUS_COLORS
 }
 
-export const TaskStatus = styled.span<TaskStatusProps>`
+export const CycleStatus = styled.span<CycleStatusProps>`
   display: flex;
   gap: 0.5rem;
   align-items: center;
@@ -86,6 +86,6 @@ export const TaskStatus = styled.span<TaskStatusProps>`
     height: 0.5rem;
     border-radius: 50%;
     background-color: ${(props) =>
-      props.theme[TASK_STATUS_COLORS[props.statusColor]]};
+      props.theme[CYCLE_STATUS_COLORS[props.statusColor]]};
   }
 `

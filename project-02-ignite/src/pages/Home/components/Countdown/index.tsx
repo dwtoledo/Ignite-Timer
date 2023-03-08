@@ -19,7 +19,7 @@ export function Countdown() {
 
   if (activeCycle) {
     document.title = `
-    ${minutesFormatted}:${secondsFormatted} | ${activeCycle.taskName} 
+    ${minutesFormatted}:${secondsFormatted} | ${activeCycle.name} 
     - Ignite Timer by @dwtoledo`
   }
 

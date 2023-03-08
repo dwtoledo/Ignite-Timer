@@ -13,7 +13,7 @@ interface NewPomodoroCycleModel {
 interface PomodoroCycle {
   id: string
   minutesAmount: number
-  taskName: string
+  name: string
   startDate: Date
   interruptedDate?: Date
   concludedDate?: Date
@@ -68,7 +68,7 @@ export function ActiveCycleContextProvider({
     const newPomodoroCycle: PomodoroCycle = {
       id: uuidv4(),
       minutesAmount: data.minutesAmount,
-      taskName: data.cycleName,
+      name: data.cycleName,
       startDate: new Date(),
     }
     setPomodoroCycles((state) => [...state, newPomodoroCycle])
