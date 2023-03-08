@@ -4,12 +4,15 @@ import { routes } from './routes'
 
 import { defaultTheme } from './assets/styles/themes/default'
 import { GlobalStyle } from './assets/styles/global'
+import { ActiveCycleContextProvider } from './contexts/ActiveCycleContextProvider'
 
 export function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <GlobalStyle />
-      <RouterProvider router={routes} />
+      <ActiveCycleContextProvider>
+        <RouterProvider router={routes} />
+      </ActiveCycleContextProvider>
     </ThemeProvider>
   )
 }

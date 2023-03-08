@@ -2,8 +2,7 @@ import { useContext } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 import * as zod from 'zod'
-
-import { ActivePomodoroCycleContext } from '../..'
+import { ActivePomodoroCycleContext } from '../../../../contexts/ActiveCycleContextProvider'
 
 import {
   CycleNameInput,
@@ -11,8 +10,8 @@ import {
   NewCycleFormContainer,
 } from './styles'
 
-const minutesAmountInputStep = 5
-const minMinutesAmountInputValue = 5
+const minutesAmountInputStep = 1
+const minMinutesAmountInputValue = 1
 const maxMinutesAmountInputValue = 60
 const cycleNamePreDefinedOptions = ['Task 1', 'Task 2', 'Task 3']
 

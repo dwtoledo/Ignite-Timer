@@ -1,3 +1,5 @@
+import { useContext } from 'react'
+import { ActivePomodoroCycleContext } from '../../contexts/ActiveCycleContextProvider'
 import {
   PomodoroHistoryContainer,
   PomodoroHistoryTable,
@@ -5,6 +7,8 @@ import {
 } from './styles'
 
 export function History() {
+  const { cycleHistory } = useContext(ActivePomodoroCycleContext)
+  console.log(cycleHistory)
   return (
     <PomodoroHistoryContainer>
       <h1>My history</h1>

@@ -1,8 +1,8 @@
 import { useContext, useEffect } from 'react'
 import { differenceInSeconds } from 'date-fns'
 
-import { ActivePomodoroCycleContext } from '../..'
 import { CountdownContainer, CountdownDivider } from './styles'
+import { ActivePomodoroCycleContext } from '../../../../contexts/ActiveCycleContextProvider'
 
 export function Countdown() {
   const { activeCycle, secondsPassed, onComplete, onSecondsPassedChange } =

@@ -1,4 +1,3 @@
-import { useState, createContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { HandPalm, Play } from 'phosphor-react'
 import { v4 as uuidv4 } from 'uuid'
@@ -18,125 +17,47 @@ import {
   StartButtonContainer,
   StopButtonContainer,
 } from './styles'
+import { useContext } from 'react'
+import { ActivePomodoroCycleContext } from '../../contexts/ActiveCycleContextProvider'
 
 type NewCycleFormData = zod.infer<typeof NewCycleFormValidatorSchema>
 
-interface PomodoroCycle {
-  id: string
-  minutesAmount: number
-  taskName: string
-  startDate: Date
-  interruptedDate?: Date
-  concludedDate?: Date
-}
-
-interface ActivePomodoroCycleContextModel {
-  activeCycle: PomodoroCycle | undefined
-  secondsPassed: number
-  onComplete: () => void
-  onSecondsPassedChange: (newValue: number) => void
-}
-
-export const ActivePomodoroCycleContext = createContext(
-  {} as ActivePomodoroCycleContextModel,
-)
-
 export function Home() {
+  const { activeCycle, createNewCycle, interruptCurrentCycle } = useContext(
+    ActivePomodoroCycleContext,
+  )
+
   const NewCycleFormContext = useForm<NewCycleFormData>({
     resolver: zodResolver(NewCycleFormValidatorSchema),
     defaultValues: NewCycleFormDefaultValues,
   })
 
-  const [pomodoroCycles, setPomodoroCycles] = useState<Array<PomodoroCycle>>([])
-  const [activePomodoroCycleId, setActivePomodoroCycleId] = useState<
-    string | null
-  >(null)
-  const [
-    activePomodoroCycleSecondsPassed,
-    setActivePomodoroCycleSecondsPassed,
-  ] = useState(0)
-
-  function updateActivePomodoroCycleSecondsPassed(newValue: number) {
-    setActivePomodoroCycleSecondsPassed(newValue)
-  }
-
-  const activePomodoroCycle = pomodoroCycles.find((pomodoroCycle) => {
-    return pomodoroCycle.id === activePomodoroCycleId
-  })
-
-  function resetPageTitle() {
-    document.title = 'Ignite Project 02 - @dwtoledo'
-  }
-
-  function handleNewPomodoroCycle(data: NewCycleFormData) {
-    const newPomodoroCycle: PomodoroCycle = {
-      id: uuidv4(),
-      minutesAmount: data.minutesAmount,
-      taskName: data.cycleName,
-      startDate: new Date(),
-    }
-    setPomodoroCycles((state) => [...state, newPomodoroCycle])
-    setActivePomodoroCycleId(newPomodoroCycle.id)
-    setActivePomodoroCycleSecondsPassed(0)
+  function handleNewCycle(data: NewCycleFormData) {
+    createNewCycle(data)
     NewCycleFormContext.reset()
   }
 
-  function handleInterruptPomodoroCycle() {
-    setPomodoroCycles((state) =>
-      state.map((pomodoroCycle) => {
-        if (pomodoroCycle.id === activePomodoroCycle?.id) {
-          return { ...pomodoroCycle, interruptedDate: new Date() }
-        } else {
-          return pomodoroCycle
-        }
-      }),
-    )
-    setActivePomodoroCycleId(null)
-    setActivePomodoroCycleSecondsPassed(0)
-    resetPageTitle()
-  }
-
-  function completePomodoroCycle() {
-    setPomodoroCycles((state) =>
-      state.map((pomodoroCycle) => {
-        if (pomodoroCycle.id === activePomodoroCycle?.id) {
-          return { ...pomodoroCycle, concludedDate: new Date() }
-        } else {
-          return pomodoroCycle
-        }
-      }),
-    )
-    setActivePomodoroCycleId(null)
-    setActivePomodoroCycleSecondsPassed(0)
-    resetPageTitle()
+  function handleInterruptCurrentCycle() {
+    interruptCurrentCycle()
   }
 
   return (
     <PomodoroFormContainer
-      onSubmit={NewCycleFormContext.handleSubmit(handleNewPomodoroCycle)}
+      onSubmit={NewCycleFormContext.handleSubmit(handleNewCycle)}
     >
-      <ActivePomodoroCycleContext.Provider
-        value={{
-          activeCycle: activePomodoroCycle,
-          secondsPassed: activePomodoroCycleSecondsPassed,
-          onComplete: completePomodoroCycle,
-          onSecondsPassedChange: updateActivePomodoroCycleSecondsPassed,
-        }}
-      >
-        <FormProvider {...NewCycleFormContext}>
-          <NewCycleForm />
-        </FormProvider>
+      <FormProvider {...NewCycleFormContext}>
+        <NewCycleForm />
+      </FormProvider>
 
-        <Countdown />
-      </ActivePomodoroCycleContext.Provider>
+      <Countdown />
 
-      {activePomodoroCycle ? (
+      {activeCycle ? (
         <StopButtonContainer
-          onClick={handleInterruptPomodoroCycle}
+          onClick={handleInterruptCurrentCycle}
           type="button"
         >
           <HandPalm size={24} />
-          Stop {activePomodoroCycle.taskName}
+          Stop {activeCycle.taskName}
         </StopButtonContainer>
       ) : (
         <StartButtonContainer type="submit">
