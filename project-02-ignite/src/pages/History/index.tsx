@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import { ActivePomodoroCycleContext } from '../../contexts/ActiveCycleContextProvider'
+import { formatDistanceToNow } from 'date-fns'
 import {
   PomodoroHistoryContainer,
   PomodoroHistoryTable,
@@ -23,62 +24,36 @@ export function History() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Task 1</td>
-              <td>25 minutes</td>
-              <td>1h ago</td>
-              <td>
-                <TaskStatus statusColor={'completed'}>Completed</TaskStatus>
-              </td>
-            </tr>
-            <tr>
-              <td>Task 1</td>
-              <td>25 minutes</td>
-              <td>1h ago</td>
-              <td>
-                <TaskStatus statusColor={'completed'}>Completed</TaskStatus>
-              </td>
-            </tr>
-            <tr>
-              <td>Task 1</td>
-              <td>25 minutes</td>
-              <td>1h ago</td>
-              <td>
-                <TaskStatus statusColor={'completed'}>Completed</TaskStatus>
-              </td>
-            </tr>
-            <tr>
-              <td>Task 1</td>
-              <td>25 minutes</td>
-              <td>1h ago</td>
-              <td>
-                <TaskStatus statusColor={'completed'}>Completed</TaskStatus>
-              </td>
-            </tr>
-            <tr>
-              <td>Task 1</td>
-              <td>25 minutes</td>
-              <td>1h ago</td>
-              <td>
-                <TaskStatus statusColor={'completed'}>Completed</TaskStatus>
-              </td>
-            </tr>
-            <tr>
-              <td>Task 1</td>
-              <td>25 minutes</td>
-              <td>1h ago</td>
-              <td>
-                <TaskStatus statusColor={'inProgress'}>In Progress</TaskStatus>
-              </td>
-            </tr>
-            <tr>
-              <td>Task 1</td>
-              <td>25 minutes</td>
-              <td>1h ago</td>
-              <td>
-                <TaskStatus statusColor={'stopped'}>Stopped</TaskStatus>
-              </td>
-            </tr>
+            {cycleHistory.map((cycle) => {
+              return (
+                <tr key={cycle.id}>
+                  <td>{cycle.taskName}</td>
+                  <td>{cycle.minutesAmount} minutes</td>
+                  <td>
+                    {formatDistanceToNow(cycle.startDate, {
+                      addSuffix: true,
+                    })}
+                  </td>
+                  <td>
+                    {cycle.concludedDate && (
+                      <TaskStatus statusColor={'completed'}>
+                        Completed
+                      </TaskStatus>
+                    )}
+
+                    {cycle.interruptedDate && (
+                      <TaskStatus statusColor={'stopped'}>Stopped</TaskStatus>
+                    )}
+
+                    {!cycle.concludedDate && !cycle.interruptedDate && (
+                      <TaskStatus statusColor={'inProgress'}>
+                        In Progress
+                      </TaskStatus>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </PomodoroHistoryTable>
