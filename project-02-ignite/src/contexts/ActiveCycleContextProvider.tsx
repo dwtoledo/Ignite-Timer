@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from 'react'
+import { createContext, ReactNode, useReducer, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 interface ActiveCycleContextProviderProps {
@@ -29,6 +29,15 @@ interface ActivePomodoroCycleContextModel {
   interruptCurrentCycle: () => void
 }
 
+interface reducerDispatchPayload {
+  newCycle: PomodoroCycle
+}
+
+interface reducerDispatchModel {
+  type: 'COMPLETE_CYCLE' | 'INTERRUPT_CYCLE' | 'CREATE_NEW_CYCLE'
+  payload?: reducerDispatchPayload
+}
+
 export const ActivePomodoroCycleContext = createContext(
   {} as ActivePomodoroCycleContextModel,
 )
@@ -36,7 +45,8 @@ export const ActivePomodoroCycleContext = createContext(
 export function ActiveCycleContextProvider({
   children,
 }: ActiveCycleContextProviderProps) {
-  const [pomodoroCycles, setPomodoroCycles] = useState<Array<PomodoroCycle>>([])
+  const [pomodoroCycles, dispatch] = useReducer(reducer, [])
+
   const [activePomodoroCycleId, setActivePomodoroCycleId] = useState<
     string | null
   >(null)
@@ -49,16 +59,36 @@ export function ActiveCycleContextProvider({
     return pomodoroCycle.id === activePomodoroCycleId
   })
 
-  function completeCycle() {
-    setPomodoroCycles((state) =>
-      state.map((pomodoroCycle) => {
+  function reducer(state: Array<PomodoroCycle>, action: reducerDispatchModel) {
+    if (action.type === 'CREATE_NEW_CYCLE' && action.payload?.newCycle) {
+      return [...state, action.payload?.newCycle]
+    }
+    if (action.type === 'COMPLETE_CYCLE') {
+      return state.map((pomodoroCycle) => {
         if (pomodoroCycle.id === activePomodoroCycle?.id) {
           return { ...pomodoroCycle, concludedDate: new Date() }
         } else {
           return pomodoroCycle
         }
-      }),
-    )
+      })
+    }
+    if (action.type === 'INTERRUPT_CYCLE') {
+      return state.map((pomodoroCycle) => {
+        if (pomodoroCycle.id === activePomodoroCycle?.id) {
+          return { ...pomodoroCycle, interruptedDate: new Date() }
+        } else {
+          return pomodoroCycle
+        }
+      })
+    }
+    return state
+  }
+
+  function completeCycle() {
+    dispatch({
+      type: 'COMPLETE_CYCLE',
+    } as reducerDispatchModel)
+
     setActivePomodoroCycleId(null)
     setActivePomodoroCycleSecondsPassed(0)
     resetPageTitle()
@@ -71,21 +101,23 @@ export function ActiveCycleContextProvider({
       name: data.cycleName,
       startDate: new Date(),
     }
-    setPomodoroCycles((state) => [...state, newPomodoroCycle])
+
+    dispatch({
+      type: 'CREATE_NEW_CYCLE',
+      payload: {
+        newCycle: newPomodoroCycle,
+      },
+    } as reducerDispatchModel)
+
     setActivePomodoroCycleId(newPomodoroCycle.id)
     setActivePomodoroCycleSecondsPassed(0)
   }
 
   function interruptCurrentCycle() {
-    setPomodoroCycles((state) =>
-      state.map((pomodoroCycle) => {
-        if (pomodoroCycle.id === activePomodoroCycle?.id) {
-          return { ...pomodoroCycle, interruptedDate: new Date() }
-        } else {
-          return pomodoroCycle
-        }
-      }),
-    )
+    dispatch({
+      type: 'INTERRUPT_CYCLE',
+    } as reducerDispatchModel)
+
     setActivePomodoroCycleId(null)
     setActivePomodoroCycleSecondsPassed(0)
     resetPageTitle()
