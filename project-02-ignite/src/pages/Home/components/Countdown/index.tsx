@@ -5,7 +5,7 @@ import { CountdownContainer, CountdownDivider } from './styles'
 import { ActiveCycleContext } from '../../../../contexts/activeCycle'
 
 export function Countdown() {
-  const { activeCycle, secondsPassed, onComplete, onSecondsPassedChange } =
+  const { activeCycle, secondsPassed, completeCycle, updateSecondsPassed } =
     useContext(ActiveCycleContext)
 
   const cycleSecondsAmount = activeCycle ? activeCycle.minutesAmount * 60 : 0
@@ -34,9 +34,9 @@ export function Countdown() {
         )
 
         if (cycleSecondsPassed > cycleSecondsAmount) {
-          onComplete()
+          completeCycle()
         } else {
-          onSecondsPassedChange(cycleSecondsPassed)
+          updateSecondsPassed(cycleSecondsPassed)
         }
       }, 1000)
     }
@@ -44,7 +44,7 @@ export function Countdown() {
     return () => {
       clearInterval(interval)
     }
-  }, [activeCycle, cycleSecondsAmount, onComplete, onSecondsPassedChange])
+  }, [activeCycle, cycleSecondsAmount, completeCycle, updateSecondsPassed])
 
   return (
     <CountdownContainer>

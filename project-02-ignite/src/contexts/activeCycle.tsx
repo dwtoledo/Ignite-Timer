@@ -20,8 +20,8 @@ interface ActiveCycleContextModel {
   cycleHistory: Array<Cycle>
   activeCycle: Cycle | undefined
   secondsPassed: number
-  onComplete: () => void
-  onSecondsPassedChange: (newValue: number) => void
+  completeCycle: () => void
+  updateSecondsPassed: (newValue: number) => void
   createNewCycle: (newCycle: NewCycleModel) => void
   interruptCurrentCycle: () => void
 }
@@ -63,7 +63,7 @@ export function ActiveCycleContextProvider({
     resetPageTitle()
   }
 
-  function onSecondsPassedChange(newValue: number) {
+  function updateSecondsPassed(newValue: number) {
     dispatch({
       type: 'UPDATE_SECONDS_PASSED',
       payload: {
@@ -83,11 +83,11 @@ export function ActiveCycleContextProvider({
   return (
     <ActiveCycleContext.Provider
       value={{
-        cycleHistory: state.cycles,
         activeCycle,
+        cycleHistory: state.cycles,
         secondsPassed: state.activeCycleSecondsPassed,
-        onComplete: completeCycle,
-        onSecondsPassedChange,
+        completeCycle,
+        updateSecondsPassed,
         createNewCycle,
         interruptCurrentCycle,
       }}
