@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useReducer, useState } from 'react'
+import { createContext, ReactNode, useReducer } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 interface ActiveCycleContextProviderProps {
@@ -29,13 +29,24 @@ interface ActivePomodoroCycleContextModel {
   interruptCurrentCycle: () => void
 }
 
-interface reducerDispatchPayload {
-  newCycle: PomodoroCycle
+interface ReducerStates {
+  pomodoroCycles: Array<PomodoroCycle>
+  activePomodoroCycleId: string | null
+  activePomodoroCycleSecondsPassed: number
 }
 
-interface reducerDispatchModel {
-  type: 'COMPLETE_CYCLE' | 'INTERRUPT_CYCLE' | 'CREATE_NEW_CYCLE'
-  payload?: reducerDispatchPayload
+interface ReducerDispatchPayload {
+  newCycle?: PomodoroCycle
+  updatedSeconds?: number
+}
+
+interface ReducerDispatchModel {
+  type:
+    | 'COMPLETE_CYCLE'
+    | 'INTERRUPT_CYCLE'
+    | 'CREATE_NEW_CYCLE'
+    | 'UPDATE_SECONDS_PASSED'
+  payload?: ReducerDispatchPayload
 }
 
 export const ActivePomodoroCycleContext = createContext(
@@ -45,53 +56,60 @@ export const ActivePomodoroCycleContext = createContext(
 export function ActiveCycleContextProvider({
   children,
 }: ActiveCycleContextProviderProps) {
-  const [pomodoroCycles, dispatch] = useReducer(reducer, [])
-
-  const [activePomodoroCycleId, setActivePomodoroCycleId] = useState<
-    string | null
-  >(null)
-  const [
-    activePomodoroCycleSecondsPassed,
-    setActivePomodoroCycleSecondsPassed,
-  ] = useState(0)
-
-  const activePomodoroCycle = pomodoroCycles.find((pomodoroCycle) => {
-    return pomodoroCycle.id === activePomodoroCycleId
+  const [state, dispatch] = useReducer(reducer, {
+    pomodoroCycles: [],
+    activePomodoroCycleId: null,
+    activePomodoroCycleSecondsPassed: 0,
   })
 
-  function reducer(state: Array<PomodoroCycle>, action: reducerDispatchModel) {
+  function reducer(state: ReducerStates, action: ReducerDispatchModel) {
     if (action.type === 'CREATE_NEW_CYCLE' && action.payload?.newCycle) {
-      return [...state, action.payload?.newCycle]
+      return {
+        activePomodoroCycleSecondsPassed: 0,
+        activePomodoroCycleId: action.payload.newCycle.id,
+        pomodoroCycles: [...state.pomodoroCycles, action.payload.newCycle],
+      }
     }
+
     if (action.type === 'COMPLETE_CYCLE') {
-      return state.map((pomodoroCycle) => {
-        if (pomodoroCycle.id === activePomodoroCycle?.id) {
-          return { ...pomodoroCycle, concludedDate: new Date() }
-        } else {
-          return pomodoroCycle
-        }
-      })
+      return {
+        activePomodoroCycleSecondsPassed: 0,
+        activePomodoroCycleId: null,
+        pomodoroCycles: state.pomodoroCycles.map((cycle) => {
+          if (cycle.id === state.activePomodoroCycleId) {
+            return { ...cycle, concludedDate: new Date() }
+          } else {
+            return cycle
+          }
+        }),
+      }
     }
+
     if (action.type === 'INTERRUPT_CYCLE') {
-      return state.map((pomodoroCycle) => {
-        if (pomodoroCycle.id === activePomodoroCycle?.id) {
-          return { ...pomodoroCycle, interruptedDate: new Date() }
-        } else {
-          return pomodoroCycle
-        }
-      })
+      return {
+        activePomodoroCycleSecondsPassed: 0,
+        activePomodoroCycleId: null,
+        pomodoroCycles: state.pomodoroCycles.map((cycle) => {
+          if (cycle.id === state.activePomodoroCycleId) {
+            return { ...cycle, interruptedDate: new Date() }
+          } else {
+            return cycle
+          }
+        }),
+      }
     }
+
+    if (
+      action.type === 'UPDATE_SECONDS_PASSED' &&
+      action.payload?.updatedSeconds
+    ) {
+      return {
+        ...state,
+        activePomodoroCycleSecondsPassed: action.payload.updatedSeconds,
+      }
+    }
+
     return state
-  }
-
-  function completeCycle() {
-    dispatch({
-      type: 'COMPLETE_CYCLE',
-    } as reducerDispatchModel)
-
-    setActivePomodoroCycleId(null)
-    setActivePomodoroCycleSecondsPassed(0)
-    resetPageTitle()
   }
 
   function createNewCycle(data: NewPomodoroCycleModel) {
@@ -107,38 +125,48 @@ export function ActiveCycleContextProvider({
       payload: {
         newCycle: newPomodoroCycle,
       },
-    } as reducerDispatchModel)
+    })
+  }
 
-    setActivePomodoroCycleId(newPomodoroCycle.id)
-    setActivePomodoroCycleSecondsPassed(0)
+  function completeCycle() {
+    dispatch({
+      type: 'COMPLETE_CYCLE',
+    })
+    resetPageTitle()
   }
 
   function interruptCurrentCycle() {
     dispatch({
       type: 'INTERRUPT_CYCLE',
-    } as reducerDispatchModel)
-
-    setActivePomodoroCycleId(null)
-    setActivePomodoroCycleSecondsPassed(0)
+    })
     resetPageTitle()
   }
 
-  function updateSecondsPassed(newValue: number) {
-    setActivePomodoroCycleSecondsPassed(newValue)
+  function onSecondsPassedChange(newValue: number) {
+    dispatch({
+      type: 'UPDATE_SECONDS_PASSED',
+      payload: {
+        updatedSeconds: newValue,
+      },
+    })
   }
 
   function resetPageTitle() {
     document.title = 'Ignite Project 02 - @dwtoledo'
   }
 
+  const activePomodoroCycle = state.pomodoroCycles.find((cycle) => {
+    return cycle.id === state.activePomodoroCycleId
+  })
+
   return (
     <ActivePomodoroCycleContext.Provider
       value={{
-        cycleHistory: pomodoroCycles,
+        cycleHistory: state.pomodoroCycles,
         activeCycle: activePomodoroCycle,
-        secondsPassed: activePomodoroCycleSecondsPassed,
+        secondsPassed: state.activePomodoroCycleSecondsPassed,
         onComplete: completeCycle,
-        onSecondsPassedChange: updateSecondsPassed,
+        onSecondsPassedChange,
         createNewCycle,
         interruptCurrentCycle,
       }}
