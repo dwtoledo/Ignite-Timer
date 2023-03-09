@@ -1,19 +1,17 @@
 import { useContext } from 'react'
-import { ActivePomodoroCycleContext } from '../../contexts/ActiveCycleContextProvider'
+import { ActiveCycleContext } from '../../contexts/activeCycle'
+
 import { formatDistanceToNow } from 'date-fns'
-import {
-  PomodoroHistoryContainer,
-  PomodoroHistoryTable,
-  CycleStatus,
-} from './styles'
+
+import { HistoryContainer, HistoryTable, CycleStatus } from './styles'
 
 export function History() {
-  const { cycleHistory } = useContext(ActivePomodoroCycleContext)
+  const { cycleHistory } = useContext(ActiveCycleContext)
 
   return (
-    <PomodoroHistoryContainer>
+    <HistoryContainer>
       <h1>My history</h1>
-      <PomodoroHistoryTable>
+      <HistoryTable>
         <table>
           <thead>
             <tr>
@@ -64,7 +62,7 @@ export function History() {
             )}
           </tbody>
         </table>
-      </PomodoroHistoryTable>
-    </PomodoroHistoryContainer>
+      </HistoryTable>
+    </HistoryContainer>
   )
 }

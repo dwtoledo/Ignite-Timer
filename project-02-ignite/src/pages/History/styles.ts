@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const PomodoroHistoryContainer = styled.main`
+export const HistoryContainer = styled.main`
   margin: 0px 3.5rem;
   display: flex;
   flex-direction: column;
@@ -13,7 +13,7 @@ export const PomodoroHistoryContainer = styled.main`
   }
 `
 
-export const PomodoroHistoryTable = styled.div`
+export const HistoryTable = styled.div`
   margin-top: 2rem;
   min-width: 600px;
 

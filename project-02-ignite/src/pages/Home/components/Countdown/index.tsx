@@ -2,11 +2,11 @@ import { useContext, useEffect } from 'react'
 import { differenceInSeconds } from 'date-fns'
 
 import { CountdownContainer, CountdownDivider } from './styles'
-import { ActivePomodoroCycleContext } from '../../../../contexts/ActiveCycleContextProvider'
+import { ActiveCycleContext } from '../../../../contexts/activeCycle'
 
 export function Countdown() {
   const { activeCycle, secondsPassed, onComplete, onSecondsPassedChange } =
-    useContext(ActivePomodoroCycleContext)
+    useContext(ActiveCycleContext)
 
   const cycleSecondsAmount = activeCycle ? activeCycle.minutesAmount * 60 : 0
   const cycleSecondsRemaining = activeCycle

@@ -1,31 +1,31 @@
 import { FormProvider, useForm } from 'react-hook-form'
 import { HandPalm, Play } from 'phosphor-react'
 import { v4 as uuidv4 } from 'uuid'
-import { zodResolver } from '@hookform/resolvers/zod'
 import * as zod from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import { useContext } from 'react'
+import { ActiveCycleContext } from '../../contexts/activeCycle'
+import { Countdown } from './components/Countdown'
 
 import {
   NewCycleForm,
   NewCycleFormDefaultValues,
   NewCycleFormValidatorSchema,
 } from './components/NewCycleForm'
-import { Countdown } from './components/Countdown'
 
 import {
   FormErrorContainer,
-  PomodoroFormContainer,
+  FormContainer,
   StartButtonContainer,
   StopButtonContainer,
 } from './styles'
-import { useContext } from 'react'
-import { ActivePomodoroCycleContext } from '../../contexts/ActiveCycleContextProvider'
 
 type NewCycleFormData = zod.infer<typeof NewCycleFormValidatorSchema>
 
 export function Home() {
-  const { activeCycle, createNewCycle, interruptCurrentCycle } = useContext(
-    ActivePomodoroCycleContext,
-  )
+  const { activeCycle, createNewCycle, interruptCurrentCycle } =
+    useContext(ActiveCycleContext)
 
   const NewCycleFormContext = useForm<NewCycleFormData>({
     resolver: zodResolver(NewCycleFormValidatorSchema),
@@ -42,9 +42,7 @@ export function Home() {
   }
 
   return (
-    <PomodoroFormContainer
-      onSubmit={NewCycleFormContext.handleSubmit(handleNewCycle)}
-    >
+    <FormContainer onSubmit={NewCycleFormContext.handleSubmit(handleNewCycle)}>
       <FormProvider {...NewCycleFormContext}>
         <NewCycleForm />
       </FormProvider>
@@ -85,6 +83,6 @@ export function Home() {
       ) : (
         <div></div>
       )}
-    </PomodoroFormContainer>
+    </FormContainer>
   )
 }

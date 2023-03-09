@@ -4,7 +4,7 @@ import { routes } from './routes'
 
 import { defaultTheme } from './assets/styles/themes/default'
 import { GlobalStyle } from './assets/styles/global'
-import { ActiveCycleContextProvider } from './contexts/ActiveCycleContextProvider'
+import { ActiveCycleContextProvider } from './contexts/activeCycle'
 
 export function App() {
   return (

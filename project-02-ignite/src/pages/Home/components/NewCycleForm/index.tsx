@@ -2,7 +2,7 @@ import { useContext } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 import * as zod from 'zod'
-import { ActivePomodoroCycleContext } from '../../../../contexts/ActiveCycleContextProvider'
+import { ActiveCycleContext } from '../../../../contexts/activeCycle'
 
 import {
   CycleNameInput,
@@ -41,7 +41,7 @@ export const NewCycleFormDefaultValues = {
 
 export function NewCycleForm() {
   const { register } = useFormContext()
-  const { activeCycle } = useContext(ActivePomodoroCycleContext)
+  const { activeCycle } = useContext(ActiveCycleContext)
   const isCycleActive = !!activeCycle
 
   return (

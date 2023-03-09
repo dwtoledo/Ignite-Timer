@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const PomodoroFormContainer = styled.form`
+export const FormContainer = styled.form`
   align-items: center;
   display: flex;
   flex-direction: column;
