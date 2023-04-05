@@ -5,7 +5,14 @@ import {
   cyclesReducer,
   initialCycleReducerStates,
   Cycle,
-} from '../reducers/activeCycles'
+} from '../reducers/activeCycle/reducer'
+
+import {
+  completeCycleAction,
+  addNewCycleAction,
+  interruptCurrentCycleAction,
+  updateSecondsPassedAction,
+} from '../reducers/activeCycle/actions'
 
 interface ActiveCycleContextProviderProps {
   children: ReactNode
@@ -22,7 +29,7 @@ interface ActiveCycleContextModel {
   secondsPassed: number
   completeCycle: () => void
   updateSecondsPassed: (newValue: number) => void
-  createNewCycle: (newCycle: NewCycleModel) => void
+  addNewCycle: (newCycle: NewCycleModel) => void
   interruptCurrentCycle: () => void
 }
 
@@ -33,43 +40,31 @@ export function ActiveCycleContextProvider({
 }: ActiveCycleContextProviderProps) {
   const [state, dispatch] = useReducer(cyclesReducer, initialCycleReducerStates)
 
-  function createNewCycle(data: NewCycleModel) {
-    const newCycle: Cycle = {
+  function createNewCycle(data: NewCycleModel): Cycle {
+    return {
       id: uuidv4(),
       minutesAmount: data.minutesAmount,
       name: data.cycleName,
       startDate: new Date(),
     }
+  }
 
-    dispatch({
-      type: 'CREATE_NEW_CYCLE',
-      payload: {
-        newCycle,
-      },
-    })
+  function addNewCycle(data: NewCycleModel) {
+    dispatch(addNewCycleAction(createNewCycle(data)))
   }
 
   function completeCycle() {
-    dispatch({
-      type: 'COMPLETE_CYCLE',
-    })
+    dispatch(completeCycleAction())
     resetPageTitle()
   }
 
   function interruptCurrentCycle() {
-    dispatch({
-      type: 'INTERRUPT_CYCLE',
-    })
+    dispatch(interruptCurrentCycleAction())
     resetPageTitle()
   }
 
   function updateSecondsPassed(newValue: number) {
-    dispatch({
-      type: 'UPDATE_SECONDS_PASSED',
-      payload: {
-        updatedSeconds: newValue,
-      },
-    })
+    dispatch(updateSecondsPassedAction(newValue))
   }
 
   function resetPageTitle() {
@@ -88,7 +83,7 @@ export function ActiveCycleContextProvider({
         secondsPassed: state.activeCycleSecondsPassed,
         completeCycle,
         updateSecondsPassed,
-        createNewCycle,
+        addNewCycle,
         interruptCurrentCycle,
       }}
     >

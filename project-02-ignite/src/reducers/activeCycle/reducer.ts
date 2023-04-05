@@ -1,3 +1,5 @@
+import { CycleReducerActionTypes } from './actions'
+
 export interface Cycle {
   id: string
   minutesAmount: number
@@ -13,20 +15,6 @@ interface CycleReducerStates {
   cycles: Array<Cycle>
 }
 
-interface CycleReducerDispatchPayloadModel {
-  newCycle?: Cycle
-  updatedSeconds?: number
-}
-
-interface CycleReducerDispatchModel {
-  type:
-    | 'COMPLETE_CYCLE'
-    | 'INTERRUPT_CYCLE'
-    | 'CREATE_NEW_CYCLE'
-    | 'UPDATE_SECONDS_PASSED'
-  payload?: CycleReducerDispatchPayloadModel
-}
-
 export const initialCycleReducerStates = {
   activeCycleId: null,
   activeCycleSecondsPassed: 0,
@@ -35,10 +23,10 @@ export const initialCycleReducerStates = {
 
 export function cyclesReducer(
   state: CycleReducerStates,
-  action: CycleReducerDispatchModel,
+  action: CycleReducerActionTypes,
 ) {
   switch (action.type) {
-    case 'CREATE_NEW_CYCLE':
+    case 'ADD_NEW_CYCLE':
       if (action.payload?.newCycle) {
         return {
           activeCycleSecondsPassed: 0,
@@ -62,7 +50,7 @@ export function cyclesReducer(
         }),
       }
 
-    case 'INTERRUPT_CYCLE':
+    case 'INTERRUPT_CURRENT_CYCLE':
       return {
         activeCycleSecondsPassed: 0,
         activeCycleId: null,
