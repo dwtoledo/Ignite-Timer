@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useReducer } from 'react'
+import { createContext, ReactNode, useEffect, useReducer } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
@@ -35,10 +35,31 @@ interface ActiveCycleContextModel {
 
 export const ActiveCycleContext = createContext({} as ActiveCycleContextModel)
 
+export function resetPageTitle() {
+  document.title = 'Ignite Project 02 - @dwtoledo'
+}
+
 export function ActiveCycleContextProvider({
   children,
 }: ActiveCycleContextProviderProps) {
-  const [state, dispatch] = useReducer(cyclesReducer, initialCycleReducerStates)
+  const [state, dispatch] = useReducer(
+    cyclesReducer,
+    initialCycleReducerStates,
+    (initialState) => {
+      const storedStateJSON = localStorage.getItem(
+        '@ignite-project-02:cycle-state-1.0.0',
+      )
+      if (storedStateJSON) {
+        return JSON.parse(storedStateJSON)
+      }
+      return initialState
+    },
+  )
+
+  useEffect(() => {
+    const stateJSON = JSON.stringify(state)
+    localStorage.setItem('@ignite-project-02:cycle-state-1.0.0', stateJSON)
+  }, [state])
 
   function createNewCycle(data: NewCycleModel): Cycle {
     return {
@@ -65,10 +86,6 @@ export function ActiveCycleContextProvider({
 
   function updateSecondsPassed(newValue: number) {
     dispatch(updateSecondsPassedAction(newValue))
-  }
-
-  function resetPageTitle() {
-    document.title = 'Ignite Project 02 - @dwtoledo'
   }
 
   const activeCycle = state.cycles.find((cycle) => {

@@ -1,5 +1,5 @@
-import { useContext } from 'react'
-import { ActiveCycleContext } from '../../contexts/activeCycle'
+import { useContext, useEffect } from 'react'
+import { ActiveCycleContext, resetPageTitle } from '../../contexts/activeCycle'
 
 import { formatDistanceToNow } from 'date-fns'
 
@@ -7,6 +7,10 @@ import { HistoryContainer, HistoryTable, CycleStatus } from './styles'
 
 export function History() {
   const { cycleHistory } = useContext(ActiveCycleContext)
+
+  useEffect(() => {
+    resetPageTitle()
+  }, [])
 
   return (
     <HistoryContainer>
@@ -33,7 +37,7 @@ export function History() {
                     <td>{cycle.name}</td>
                     <td>{cycle.minutesAmount} minutes</td>
                     <td>
-                      {formatDistanceToNow(cycle.startDate, {
+                      {formatDistanceToNow(new Date(cycle.startDate), {
                         addSuffix: true,
                       })}
                     </td>
