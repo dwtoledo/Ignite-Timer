@@ -1,7 +1,7 @@
 # @dwtoledo Ignite Timer using React with Typescript
 Ignite Timer, the second Rocketseat Ignite Course Project using React with Typescript. The objective of the project is to create a page to create, start and stop a timer, and other to check all timer's history and their status.
 
-The project uses various React features such as components, states and props. Styling is done with CSS modules.
+The project used various React features such as components, states and props. Styling was done with Styled Components.
 
 ## Layout:
 
